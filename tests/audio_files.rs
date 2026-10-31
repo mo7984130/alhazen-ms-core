@@ -5,11 +5,11 @@
 use std::process::Command;
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::{AudioOutputConfig, NullOutput};
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::AudioBuffer;
-use alhazen_core::demux::{Demuxer, StreamInfo, StreamKind};
-use alhazen_core::{FfmpegConfig, Player, PlayerConfig, PlayerState, Source};
+use alhazen_ms_core::audio::{AudioOutputConfig, NullOutput};
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::AudioBuffer;
+use alhazen_ms_core::demux::{Demuxer, StreamInfo, StreamKind};
+use alhazen_ms_core::{FfmpegConfig, Player, PlayerConfig, PlayerState, Source};
 
 /// A fixture by name, or a file generated at test time by absolute path.
 fn fixture(name: &str) -> String {
@@ -19,7 +19,7 @@ fn fixture(name: &str) -> String {
 fn open_path(path: &str) -> Box<dyn Demuxer> {
     let source = Source::parse(path).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().expect("a known container");
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().expect("a known container");
     Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap()
 }
 
@@ -504,7 +504,7 @@ fn ogg_seeks_land_near_the_target_in_long_files() {
 
 // ---- Tags in MP4 and Matroska ----
 
-fn assert_test_tags(name: &str, m: &alhazen_core::Metadata) {
+fn assert_test_tags(name: &str, m: &alhazen_ms_core::Metadata) {
     assert_eq!((m.title.as_deref(), m.artist.as_deref(), m.album.as_deref()), (Some("Test Title"), Some("Test Artist"), Some("Test Album")), "{name}");
     assert_eq!((m.album_artist.as_deref(), m.track, m.year, m.genre.as_deref()), (Some("Test Album Artist"), Some(3), Some(2024), Some("Rock")), "{name}");
     let cover = m.cover.as_ref().unwrap_or_else(|| panic!("{name}: cover"));
@@ -552,7 +552,7 @@ fn every_reader_survives_edge_seeks() {
 /// A file seen as a network source (not local), counting seeks backwards from the read position:
 /// each one is a new connection over HTTP, and impossible on a server without Range support.
 struct NetworkLike {
-    file: alhazen_core::source::FileSource,
+    file: alhazen_ms_core::source::FileSource,
     pos: u64,
     backward: std::sync::Arc<std::sync::atomic::AtomicUsize>,
     /// Bytes read so far.
@@ -579,7 +579,7 @@ impl std::io::Seek for NetworkLike {
     }
 }
 
-impl alhazen_core::source::MediaSource for NetworkLike {
+impl alhazen_ms_core::source::MediaSource for NetworkLike {
     fn byte_len(&self) -> Option<u64> {
         self.file.byte_len()
     }
@@ -607,14 +607,14 @@ fn reading_a_file_through_does_not_seek_backwards() {
     ] {
         let Some(path) = generated(name, codec) else { return };
         let backward = std::sync::Arc::new(AtomicUsize::new(0));
-        let mut src: Box<dyn alhazen_core::source::MediaSource> =
+        let mut src: Box<dyn alhazen_ms_core::source::MediaSource> =
             Box::new(NetworkLike {
-            file: alhazen_core::source::FileSource::open(&path).unwrap(),
+            file: alhazen_ms_core::source::FileSource::open(&path).unwrap(),
             pos: 0,
             backward: backward.clone(),
             read: Default::default(),
         });
-        let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+        let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
         src.rewind().unwrap();
         let mut d = Registry::empty_with_native().open_demuxer(&Source::parse(&path).unwrap(), format, src, None).unwrap();
         let at_open = backward.load(Ordering::Relaxed);
@@ -661,12 +661,12 @@ fn matroska_attachments_that_are_not_images_are_not_read() {
     }
     let read = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let src = Box::new(NetworkLike {
-        file: alhazen_core::source::FileSource::open(&path).unwrap(),
+        file: alhazen_ms_core::source::FileSource::open(&path).unwrap(),
         pos: 0,
         backward: Default::default(),
         read: read.clone(),
     });
-    let d = alhazen_core::demux::MatroskaDemuxer::open(src).unwrap();
+    let d = alhazen_ms_core::demux::MatroskaDemuxer::open(src).unwrap();
     assert!(d.metadata().is_none_or(|m| m.cover.is_none()));
     assert!(read.load(Ordering::Relaxed) < 1 << 20, "opening read {} bytes", read.load(Ordering::Relaxed));
 }
@@ -709,12 +709,12 @@ fn chained_ogg_open_does_not_scan_the_whole_file_back() {
     assert!(local.abs_diff(Duration::from_secs(2)) < ms(30), "{local:?}");
     let read = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let src = Box::new(NetworkLike {
-        file: alhazen_core::source::FileSource::open(&chained).unwrap(),
+        file: alhazen_ms_core::source::FileSource::open(&chained).unwrap(),
         pos: 0,
         backward: Default::default(),
         read: read.clone(),
     });
-    let mut d: Box<dyn Demuxer> = Box::new(alhazen_core::demux::OggDemuxer::open(src).unwrap());
+    let mut d: Box<dyn Demuxer> = Box::new(alhazen_ms_core::demux::OggDemuxer::open(src).unwrap());
     assert!(read.load(Ordering::Relaxed) < 1_500_000, "open read {} bytes", read.load(Ordering::Relaxed));
     let s = audio(&*d);
     assert!(decode(&mut *d, &s, |_| false).samples.len() > 48_000, "the first stream plays");
@@ -724,12 +724,12 @@ fn chained_ogg_open_does_not_scan_the_whole_file_back() {
 fn flac_and_wav_after_an_id3_tag_are_detected_and_play() {
     let mp3 = std::fs::read(fixture("mp3_tagged.mp3")).unwrap();
     let tag_len = 10 + (mp3[6..10].iter().fold(0usize, |v, &b| v << 7 | b as usize));
-    for (name, format) in [("flac.flac", alhazen_core::demux::ContainerFormat::Flac), ("wav_s16.wav", alhazen_core::demux::ContainerFormat::Wav)] {
+    for (name, format) in [("flac.flac", alhazen_ms_core::demux::ContainerFormat::Flac), ("wav_s16.wav", alhazen_ms_core::demux::ContainerFormat::Wav)] {
         let bytes = [&mp3[..tag_len], &std::fs::read(fixture(name)).unwrap()[..]].concat();
         let path = std::path::Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("id3_{name}"));
         std::fs::write(&path, bytes).unwrap();
-        let mut src = alhazen_core::source::FileSource::open(&path).unwrap();
-        assert_eq!(alhazen_core::demux::probe(&mut src).unwrap(), Some(format), "{name}");
+        let mut src = alhazen_ms_core::source::FileSource::open(&path).unwrap();
+        assert_eq!(alhazen_ms_core::demux::probe(&mut src).unwrap(), Some(format), "{name}");
         let mut d = open_path(path.to_str().unwrap());
         assert_eq!(d.metadata().and_then(|m| m.title.clone()).as_deref(), Some("Test Title"), "{name}: the ID3 tag is read");
         let s = audio(&*d);
@@ -746,7 +746,7 @@ fn adts_frames_with_several_aac_blocks_are_refused_clearly() {
     std::fs::write(&path, frame.repeat(5)).unwrap();
     let source = Source::parse(path.to_str().unwrap()).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let err = match Registry::empty_with_native().open_demuxer(&source, format, src, None) {
         Ok(_) => panic!("opened"),
         Err(e) => e.to_string(),

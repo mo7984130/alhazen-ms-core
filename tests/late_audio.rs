@@ -8,12 +8,12 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::{AudioOutputConfig, NullOutput};
-use alhazen_core::backend::{Backend, Registry};
-use alhazen_core::decode::{AudioBuffer, AudioDecoder, VideoDecoder};
-use alhazen_core::demux::{Codec, ContainerFormat, Demuxer, Packet, StreamInfo};
-use alhazen_core::source::MediaSource;
-use alhazen_core::{FfmpegConfig, Player, PlayerConfig, Source};
+use alhazen_ms_core::audio::{AudioOutputConfig, NullOutput};
+use alhazen_ms_core::backend::{Backend, Registry};
+use alhazen_ms_core::decode::{AudioBuffer, AudioDecoder, VideoDecoder};
+use alhazen_ms_core::demux::{Codec, ContainerFormat, Demuxer, Packet, StreamInfo};
+use alhazen_ms_core::source::MediaSource;
+use alhazen_ms_core::{FfmpegConfig, Player, PlayerConfig, Source};
 
 /// Emits one buffer per packet, but only 100 ms after the packet arrived.
 struct LateDecoder {
@@ -23,13 +23,13 @@ struct LateDecoder {
 }
 
 impl AudioDecoder for LateDecoder {
-    fn send_packet(&mut self, p: &Packet) -> alhazen_core::Result<()> {
+    fn send_packet(&mut self, p: &Packet) -> alhazen_ms_core::Result<()> {
         let samples = vec![0.1; 1024 * self.channels as usize];
         let buf = AudioBuffer { rate: self.rate, channels: self.channels, samples, pts: p.pts };
         self.pending.push_back((Instant::now() + Duration::from_millis(100), buf));
         Ok(())
     }
-    fn receive_samples(&mut self) -> alhazen_core::Result<Option<AudioBuffer>> {
+    fn receive_samples(&mut self) -> alhazen_ms_core::Result<Option<AudioBuffer>> {
         if self.pending.front().is_some_and(|(at, _)| *at <= Instant::now()) {
             return Ok(self.pending.pop_front().map(|(_, b)| b));
         }
@@ -52,19 +52,19 @@ impl Backend for LateAudio {
     fn supports_container(&self, _: ContainerFormat) -> bool {
         false
     }
-    fn open_demuxer(&self, _: ContainerFormat, _: Box<dyn MediaSource>) -> alhazen_core::Result<Box<dyn Demuxer>> {
+    fn open_demuxer(&self, _: ContainerFormat, _: Box<dyn MediaSource>) -> alhazen_ms_core::Result<Box<dyn Demuxer>> {
         unreachable!()
     }
     fn supports_video(&self, _: &StreamInfo) -> bool {
         false
     }
-    fn open_video_decoder(&self, _: &StreamInfo, _: usize) -> alhazen_core::Result<Box<dyn VideoDecoder>> {
+    fn open_video_decoder(&self, _: &StreamInfo, _: usize) -> alhazen_ms_core::Result<Box<dyn VideoDecoder>> {
         unreachable!()
     }
     fn supports_audio(&self, s: &StreamInfo) -> bool {
         s.codec == Codec::Aac
     }
-    fn open_audio_decoder(&self, s: &StreamInfo) -> alhazen_core::Result<Box<dyn AudioDecoder>> {
+    fn open_audio_decoder(&self, s: &StreamInfo) -> alhazen_ms_core::Result<Box<dyn AudioDecoder>> {
         Ok(Box::new(LateDecoder { rate: s.sample_rate, channels: s.channels, pending: VecDeque::new() }))
     }
 }

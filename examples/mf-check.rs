@@ -13,12 +13,12 @@ fn main() {
     use std::sync::Arc;
     use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
     use std::time::{Duration, Instant};
-    use alhazen_core::backend::Registry;
-    use alhazen_core::decode::{AudioDecoder, DecodedFrame, VideoDecoder};
-    use alhazen_core::demux::StreamKind;
-    use alhazen_core::hw::select::HwCodec;
-    use alhazen_core::mf::{MfAudioDecoder, MfVideoDecoder};
-    use alhazen_core::Source;
+    use alhazen_ms_core::backend::Registry;
+    use alhazen_ms_core::decode::{AudioDecoder, DecodedFrame, VideoDecoder};
+    use alhazen_ms_core::demux::StreamKind;
+    use alhazen_ms_core::hw::select::HwCodec;
+    use alhazen_ms_core::mf::{MfAudioDecoder, MfVideoDecoder};
+    use alhazen_ms_core::Source;
 
     if std::env::args().nth(1).as_deref() == Some("--native-type") {
         native_types(&std::env::args().nth(2).expect("usage: mf-check --native-type <file>"));
@@ -51,7 +51,7 @@ fn main() {
             let progress = p2;
             let source = Source::parse(&path).map_err(|e| e.to_string())?;
             let mut src = source.open().map_err(|e| e.to_string())?;
-            let format = alhazen_core::demux::probe(src.as_mut()).map_err(|e| e.to_string())?.ok_or("not a media file")?;
+            let format = alhazen_ms_core::demux::probe(src.as_mut()).map_err(|e| e.to_string())?.ok_or("not a media file")?;
             let mut d = Registry::empty_with_native().open_demuxer(&source, format, src, None).map_err(|e| e.to_string())?;
             let s = d.streams().iter().find(|s| s.kind == kind).cloned().ok_or("no such track")?;
             let codec = HwCodec::of(&s).ok_or("not a Media Foundation codec")?;

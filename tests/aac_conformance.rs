@@ -3,10 +3,10 @@
 //! downloaded by `scripts/fetch_aac_vectors.py`; set `AAC_VECTORS_DIR` to run (CI does).
 #![cfg(all(feature = "native", feature = "native-aac"))]
 
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::{AacAudioDecoder, AudioDecoder};
-use alhazen_core::demux::{StreamInfo, StreamKind};
-use alhazen_core::Source;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::{AacAudioDecoder, AudioDecoder};
+use alhazen_ms_core::demux::{StreamInfo, StreamKind};
+use alhazen_ms_core::Source;
 
 fn decode(path: &str) -> (u32, u16, Vec<f32>) {
     decode_with(path, |s| Box::new(AacAudioDecoder::new(s).unwrap()))
@@ -15,7 +15,7 @@ fn decode(path: &str) -> (u32, u16, Vec<f32>) {
 fn decode_with(path: &str, open: impl FnOnce(&StreamInfo) -> Box<dyn AudioDecoder>) -> (u32, u16, Vec<f32>) {
     let source = Source::parse(path).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let mut d = Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap();
     let s = d.streams().iter().find(|s| s.kind == StreamKind::Audio).unwrap().clone();
     let mut dec = open(&s);
@@ -89,7 +89,7 @@ fn he_aac_edit_list_skip_is_trimmed_at_the_output_rate() {
     }
     let source = Source::parse(cut.to_str().unwrap()).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let d = Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap();
     let delay = d.streams().iter().find(|s| s.kind == StreamKind::Audio).unwrap().codec_delay;
     assert!(!delay.is_zero(), "the cut has an edit-list skip");
@@ -120,13 +120,13 @@ fn he_aac_edit_list_skip_is_trimmed_at_the_output_rate() {
 #[cfg(feature = "ffmpeg-cli")]
 #[test]
 fn he_aac_through_ffmpeg_keeps_the_sbr_rate() {
-    use alhazen_core::backend::Backend;
+    use alhazen_ms_core::backend::Backend;
     let Ok(dir) = std::env::var("AAC_VECTORS_DIR") else {
         eprintln!("skipped: set AAC_VECTORS_DIR (see scripts/fetch_aac_vectors.py)");
         return;
     };
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(dir);
-    let ffmpeg = alhazen_core::ffmpeg::FfmpegCliBackend::new(Default::default());
+    let ffmpeg = alhazen_ms_core::ffmpeg::FfmpegCliBackend::new(Default::default());
     if ffmpeg.ffmpeg().is_none() {
         eprintln!("skipped: no ffmpeg");
         return;

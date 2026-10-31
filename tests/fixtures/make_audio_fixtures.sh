@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the audio-file fixtures (alhazen-core 0.5). Needs ffmpeg with libmp3lame, libvorbis, libopus.
+# Regenerates the audio-file fixtures (alhazen-ms-core 0.6). Needs ffmpeg with libmp3lame, libvorbis, libopus.
 # Signals are chirps, so a wrong position after a seek cannot line up by accident.
 set -euo pipefail
 cd "$(dirname "$0")"

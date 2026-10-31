@@ -1,22 +1,22 @@
-# alhazen-core
+# alhazen-ms-core
 
-[![crates.io](https://img.shields.io/crates/v/alhazen-core.svg)](https://crates.io/crates/alhazen-core)
-[![docs.rs](https://img.shields.io/docsrs/alhazen-core)](https://docs.rs/alhazen-core)
-[![CI](https://github.com/alhazen-rs/alhazen-core/actions/workflows/ci.yml/badge.svg)](https://github.com/alhazen-rs/alhazen-core/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/alhazen-ms-core.svg)](https://crates.io/crates/alhazen-ms-core)
+[![docs.rs](https://img.shields.io/docsrs/alhazen-ms-core)](https://docs.rs/alhazen-ms-core)
+[![CI](https://github.com/mo7984130/alhazen-ms-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mo7984130/alhazen-ms-core/actions/workflows/ci.yml)
 
 **A native media engine for Rust.** Give it a file or a URL; it hands you video frames on time
 and plays the sound. Pure-Rust decoders everywhere, the operating system's GPU decoders where
 available, and no GStreamer, bundled ffmpeg or browser engine.
 
-alhazen-core has no UI dependency. Use it to build a video player in any toolkit: GPUI (see
-[alhazen-gpui](https://github.com/alhazen-rs/alhazen-gpui)), egui, iced, Slint, a game engine,
+alhazen-ms-core has no UI dependency. Use it to build a video player in any toolkit: GPUI (see
+[alhazen-ms-gpui](https://github.com/mo7984130/alhazen-ms-gpui)), egui, iced, Slint, a game engine,
 or your own renderer.
 
 > Named after **Ibn al-Haytham** (Alhazen, c. 965–1040), whose *Book of Optics* first
 > explained how images form, the science behind every camera and screen.
 
 ```rust
-use alhazen_core::{Player, PlayerConfig, Source};
+use alhazen_ms_core::{Player, PlayerConfig, Source};
 
 let player = Player::open(Source::parse("https://example.com/movie.mkv")?, PlayerConfig::default())?;
 player.play();
@@ -69,7 +69,7 @@ if let Some(frame) = player.current_frame() { /* draw it */ }
 
 ```toml
 [dependencies]
-alhazen-core = "0.5"
+alhazen-ms-core = "0.6.1"
 
 # Decoding unoptimized is many times slower than real time: optimize the decoders even in
 # debug builds.
@@ -81,9 +81,9 @@ opt-level = 3
 
 ```rust
 use std::time::Duration;
-use alhazen_core::{Player, PlayerConfig, PlayerEvent, Source, VideoFrame};
+use alhazen_ms_core::{Player, PlayerConfig, PlayerEvent, Source, VideoFrame};
 
-fn main() -> alhazen_core::Result<()> {
+fn main() -> alhazen_ms_core::Result<()> {
     let player = Player::open(Source::parse("movie.mkv")?, PlayerConfig::default())?;
     let events = player.events(); // crossbeam Receiver<PlayerEvent>
     player.play();
@@ -127,7 +127,7 @@ A player in any toolkit comes down to three things:
 3. **Listen to `events()`** to repaint when paused (`FrameReady`), and to show `Warning`s and
    errors.
 
-[alhazen-gpui](https://github.com/alhazen-rs/alhazen-gpui) is a complete example: about 450
+[alhazen-ms-gpui](https://github.com/mo7984130/alhazen-ms-gpui) is a complete example: about 450
 lines for the player entity and the element.
 
 ## Supported formats
@@ -190,12 +190,12 @@ embedded cover (still encoded, with its MIME type) from ID3v2/ID3v1, Vorbis comm
 pictures, MP4 `ilst`, Matroska tags and attachments, and RIFF INFO.
 
 ```rust,no_run
-# use alhazen_core::{Player, PlayerConfig, Source};
+# use alhazen_ms_core::{Player, PlayerConfig, Source};
 let player = Player::open(Source::parse("song.mp3")?, PlayerConfig::default())?;
 if let Some(m) = player.metadata() {
     println!("{} — {}", m.artist.as_deref().unwrap_or("?"), m.title.as_deref().unwrap_or("?"));
 }
-# Ok::<(), alhazen_core::Error>(())
+# Ok::<(), alhazen_ms_core::Error>(())
 ```
 
 ### Video
@@ -316,7 +316,7 @@ point. Seeking passes through `Buffering`.
 | Variable | Effect |
 |---|---|
 | `ALHAZEN_FFMPEG=/path/to/ffmpeg` | The ffmpeg program to use (when `PlayerConfig::ffmpeg.path` isn't set). |
-| `RUST_LOG=alhazen_core=debug` | Library logging through the `log` crate, with any logger. |
+| `RUST_LOG=alhazen_ms_core=debug` | Library logging through the `log` crate, with any logger. |
 
 ## Platform requirements
 
@@ -364,7 +364,7 @@ VP9_VECTORS_DIR=target/vp9-vectors cargo test --release --test vp9_conformance
 ## License
 
 Apache License, Version 2.0 ([LICENSE](LICENSE)). If you distribute software that contains
-alhazen-core, include the [NOTICE](NOTICE) text (Apache-2.0 §4(d)), for example in an "About" or
+alhazen-ms-core, include the [NOTICE](NOTICE) text (Apache-2.0 §4(d)), for example in an "About" or
 "Licenses" screen.
 
 The default build depends only on permissively licensed crates (MIT, Apache-2.0, BSD).

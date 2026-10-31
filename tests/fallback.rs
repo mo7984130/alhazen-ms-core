@@ -5,13 +5,13 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::{AudioOutputConfig, NullOutput};
-use alhazen_core::backend::{Backend, NativeBackend, Registry};
-use alhazen_core::clock::MockClock;
-use alhazen_core::decode::{Av1Decoder, DecodedFrame, VideoDecoder};
-use alhazen_core::demux::{Codec, ContainerFormat, Demuxer, Packet, StreamInfo};
-use alhazen_core::source::MediaSource;
-use alhazen_core::{Player, PlayerConfig, PlayerEvent, PlayerState, Result, Source};
+use alhazen_ms_core::audio::{AudioOutputConfig, NullOutput};
+use alhazen_ms_core::backend::{Backend, NativeBackend, Registry};
+use alhazen_ms_core::clock::MockClock;
+use alhazen_ms_core::decode::{Av1Decoder, DecodedFrame, VideoDecoder};
+use alhazen_ms_core::demux::{Codec, ContainerFormat, Demuxer, Packet, StreamInfo};
+use alhazen_ms_core::source::MediaSource;
+use alhazen_ms_core::{Player, PlayerConfig, PlayerEvent, PlayerState, Result, Source};
 
 /// AV1 through rav1d, made `delay` slower per frame, plus a one-off `stall` at frame
 /// `STALL_FRAME`, 1.5 s in: well into playback, past anything decoded ahead before it starts.

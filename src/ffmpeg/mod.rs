@@ -160,7 +160,7 @@ mod backend {
         #[test]
         fn nonexistent_ffmpeg_claims_nothing() {
             let b = FfmpegCliBackend::new(FfmpegConfig {
-                path: Some("/nonexistent/ffmpeg-for-alhazen-core-tests".into()),
+                path: Some("/nonexistent/ffmpeg-for-alhazen-ms-core-tests".into()),
                 ..FfmpegConfig::default()
             });
             let h264 = StreamInfo::new(1, StreamKind::Video, Codec::H264);

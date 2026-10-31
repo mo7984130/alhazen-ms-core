@@ -1,18 +1,21 @@
 [package]
-name = "alhazen-core"
-description = "Native media engine for Rust: plays video and audio from files and HTTP, with pure-Rust and OS (GPU) decoders. UI-agnostic."
-version = "0.6.0"
+name = "alhazen-ms-core"
+description = "Memory Seek fork of alhazen-core: a native media engine for Rust with pure-Rust and OS (GPU) decoders."
+version = "0.6.1"
 edition = "2024"
 license = "Apache-2.0"
 rust-version = "1.92"
-repository = "https://github.com/alhazen-rs/alhazen-core"
-homepage = "https://github.com/alhazen-rs"
-documentation = "https://docs.rs/alhazen-core"
+repository = "https://github.com/mo7984130/alhazen-ms-core"
+homepage = "https://github.com/mo7984130/alhazen-ms-core"
+documentation = "https://docs.rs/alhazen-ms-core"
 readme = "README.md"
 keywords = ["video", "audio", "media", "player", "decoder"]
 categories = ["multimedia::video", "multimedia::audio", "multimedia"]
 # Test fixtures and scripts stay in the repository (crates.io packages must be small).
 include = ["src/**", "examples/**", "LICENSE", "NOTICE", "README.md"]
+
+[lib]
+name = "alhazen_ms_core"
 
 [features]
 default = ["native", "http", "hls", "audio-output", "ffmpeg-cli", "media-foundation", "nvdec", "native-aac", "native-mp3"]
@@ -96,7 +99,7 @@ tiny_http = "0.12"
 url = "2.5"
 
 # Decoders are unusably slow unoptimized (tests play real-time video), so they are optimized
-# even in debug builds. Apps using alhazen-core should do the same (see the README).
+# even in debug builds. Apps using alhazen-ms-core should do the same (see the README).
 [profile.dev.package.rav1d]
 opt-level = 3
 

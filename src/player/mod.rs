@@ -123,8 +123,8 @@ impl Default for PlayerConfig {
 /// How to get a decoder for a codec the build cannot play, for warnings.
 fn codec_hint(codec: &demux::Codec) -> &'static str {
     match codec {
-        demux::Codec::Aac => " (install ffmpeg, or enable alhazen-core's default `native-aac` feature)",
-        demux::Codec::Mp3 => " (install ffmpeg, or enable alhazen-core's default `native-mp3` feature)",
+        demux::Codec::Aac => " (install ffmpeg, or enable alhazen-ms-core's default `native-aac` feature)",
+        demux::Codec::Mp3 => " (install ffmpeg, or enable alhazen-ms-core's default `native-mp3` feature)",
         demux::Codec::H264 | demux::Codec::Hevc => " (install ffmpeg)",
         _ => "",
     }
@@ -706,12 +706,12 @@ impl Player {
     /// Tags and cover art (title, artist, album, …), when the file has any.
     ///
     /// ```no_run
-    /// # use alhazen_core::{Player, PlayerConfig, Source};
+    /// # use alhazen_ms_core::{Player, PlayerConfig, Source};
     /// let player = Player::open(Source::parse("song.mp3")?, PlayerConfig::default())?;
     /// if let Some(m) = player.metadata() {
     ///     println!("{} — {}", m.artist.as_deref().unwrap_or("?"), m.title.as_deref().unwrap_or("?"));
     /// }
-    /// # Ok::<(), alhazen_core::Error>(())
+    /// # Ok::<(), alhazen_ms_core::Error>(())
     /// ```
     pub fn metadata(&self) -> Option<Metadata> {
         self.metadata.clone()

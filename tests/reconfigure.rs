@@ -5,11 +5,11 @@
 use std::collections::BTreeSet;
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::AudioOutputConfig;
-use alhazen_core::backend::Registry;
-use alhazen_core::demux::{self, Demuxer, Packet, StreamInfo, StreamKind};
-use alhazen_core::source::{FileSource, MediaSource};
-use alhazen_core::{Player, PlayerConfig, PlayerState, Source};
+use alhazen_ms_core::audio::AudioOutputConfig;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::demux::{self, Demuxer, Packet, StreamInfo, StreamKind};
+use alhazen_ms_core::source::{FileSource, MediaSource};
+use alhazen_ms_core::{Player, PlayerConfig, PlayerState, Source};
 
 /// Plays the video of each part in turn as one stream with id 1, announcing each new part's
 /// format through `take_stream_update`.
@@ -32,7 +32,7 @@ impl Demuxer for Concat {
         &self.streams
     }
 
-    fn next_packet(&mut self) -> alhazen_core::Result<Option<Packet>> {
+    fn next_packet(&mut self) -> alhazen_ms_core::Result<Option<Packet>> {
         loop {
             let Some(d) = self.parts.first_mut() else { return Ok(None) };
             let id = d.streams().iter().find(|s| s.kind == StreamKind::Video).unwrap().id;
@@ -55,7 +55,7 @@ impl Demuxer for Concat {
         }
     }
 
-    fn seek(&mut self, _: Duration) -> alhazen_core::Result<Duration> {
+    fn seek(&mut self, _: Duration) -> alhazen_ms_core::Result<Duration> {
         Ok(Duration::ZERO)
     }
 

@@ -178,7 +178,7 @@ ffmpeg -v error -y -i sync.mp4 -map 0:a -map 0:v -c copy audio_first.mp4
   `sync.mkv`: AAC with Matroska CodecDelay. `audio_first.mp4`: `sync.mp4` with the audio as
   track 1 and the video as track 2, so at decode time 0 the audio packet comes before the keyframe.
 
-## Audio files (alhazen-core 0.5)
+## Audio files (alhazen-ms-core 0.5)
 
 `bash make_audio_fixtures.sh` regenerates every fixture below. The signals are chirps, so a seek that lands on the wrong sample cannot line up by accident.
 

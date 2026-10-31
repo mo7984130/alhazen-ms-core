@@ -3,11 +3,11 @@
 
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::AudioOutputConfig;
-use alhazen_core::backend::Registry;
-use alhazen_core::demux::{self, Codec, ContainerFormat, Demuxer, StreamKind};
-use alhazen_core::source::{FileSource, MediaSource};
-use alhazen_core::{Player, PlayerConfig, PlayerState, Source};
+use alhazen_ms_core::audio::AudioOutputConfig;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::demux::{self, Codec, ContainerFormat, Demuxer, StreamKind};
+use alhazen_ms_core::source::{FileSource, MediaSource};
+use alhazen_ms_core::{Player, PlayerConfig, PlayerState, Source};
 
 fn path(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -75,7 +75,7 @@ fn ts_file_seeks_to_a_keyframe() {
 #[test]
 fn ts_file_plays_to_the_end() {
     // H.264 needs a platform decoder or ffmpeg (no pure-Rust one): skip in builds without them.
-    let h264 = alhazen_core::demux::StreamInfo::new(0, StreamKind::Video, Codec::H264);
+    let h264 = alhazen_ms_core::demux::StreamInfo::new(0, StreamKind::Video, Codec::H264);
     if !Registry::with_defaults().can_decode(&h264) {
         eprintln!("skipped: no H.264 decoder in this build");
         return;

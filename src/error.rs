@@ -1,6 +1,6 @@
 use std::fmt;
 
-/// Every error `alhazen-core` can produce.
+/// Every error `alhazen-ms-core` can produce.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("I/O error: {0}")]

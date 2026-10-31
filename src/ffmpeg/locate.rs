@@ -151,7 +151,7 @@ mod tests {
 
     #[test]
     fn missing_binary_is_none() {
-        assert!(probe(Path::new("/nonexistent/ffmpeg-for-alhazen-core-tests")).is_none());
+        assert!(probe(Path::new("/nonexistent/ffmpeg-for-alhazen-ms-core-tests")).is_none());
     }
 
     #[test]

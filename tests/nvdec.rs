@@ -5,11 +5,11 @@
 use std::process::Command;
 use std::time::Duration;
 
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::{DecodedFrame, VideoDecoder, YuvFrame};
-use alhazen_core::demux::{Demuxer, StreamInfo, StreamKind};
-use alhazen_core::nvdec::NvdecVideoDecoder;
-use alhazen_core::Source;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::{DecodedFrame, VideoDecoder, YuvFrame};
+use alhazen_ms_core::demux::{Demuxer, StreamInfo, StreamKind};
+use alhazen_ms_core::nvdec::NvdecVideoDecoder;
+use alhazen_ms_core::Source;
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -18,7 +18,7 @@ fn fixture(name: &str) -> String {
 fn demuxer(name: &str) -> Box<dyn Demuxer> {
     let source = Source::parse(&fixture(name)).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap()
 }
 
@@ -27,7 +27,7 @@ fn video(d: &dyn Demuxer) -> StreamInfo {
 }
 
 fn gpu() -> bool {
-    let ok = alhazen_core::nvdec::available();
+    let ok = alhazen_ms_core::nvdec::available();
     if !ok {
         eprintln!("skipped: no NVDEC on this machine");
     }
@@ -203,9 +203,9 @@ fn streams_outside_the_gpus_size_limits_are_not_claimed() {
     if !gpu() {
         return;
     }
-    use alhazen_core::backend::Backend;
-    use alhazen_core::demux::Codec;
-    let backend = alhazen_core::nvdec::NvdecBackend::new(true);
+    use alhazen_ms_core::backend::Backend;
+    use alhazen_ms_core::demux::Codec;
+    let backend = alhazen_ms_core::nvdec::NvdecBackend::new(true);
     let stream = |codec, w, h| {
         let mut s = StreamInfo::new(1, StreamKind::Video, codec);
         (s.width, s.height) = (w, h);
@@ -302,8 +302,8 @@ fn a_hint_below_the_gpus_minimum_still_decodes() {
     }
 }
 
-use alhazen_core::audio::AudioOutputConfig;
-use alhazen_core::{FfmpegConfig, Player, PlayerConfig};
+use alhazen_ms_core::audio::AudioOutputConfig;
+use alhazen_ms_core::{FfmpegConfig, Player, PlayerConfig};
 
 fn player(name: &str, prefer_hardware: bool) -> Player {
     let config = PlayerConfig {
@@ -396,8 +396,8 @@ fn variants_known_from_setup_data_are_not_offered_to_the_gpu() {
     if !gpu() {
         return;
     }
-    use alhazen_core::backend::Backend;
-    let backend = alhazen_core::nvdec::NvdecBackend::new(true);
+    use alhazen_ms_core::backend::Backend;
+    let backend = alhazen_ms_core::nvdec::NvdecBackend::new(true);
     for (name, claimed) in [("h264_aac.mp4", true), ("hevc_10bit.mp4", true), ("h264_10bit.mkv", false), ("hevc_444.mkv", false)] {
         let d = demuxer(name);
         assert_eq!(backend.supports_video(&video(d.as_ref())), claimed, "{name}");

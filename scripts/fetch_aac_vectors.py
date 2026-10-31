@@ -23,7 +23,7 @@ def main():
         path = os.path.join(out, name)
         if os.path.exists(path):
             continue
-        req = urllib.request.Request(BASE + name, headers={"User-Agent": "alhazen-core-tests"})
+        req = urllib.request.Request(BASE + name, headers={"User-Agent": "alhazen-ms-core-tests"})
         with urllib.request.urlopen(req, timeout=60) as r, open(path + ".part", "wb") as f:
             f.write(r.read())
         os.replace(path + ".part", path)

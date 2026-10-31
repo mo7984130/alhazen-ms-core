@@ -3,8 +3,8 @@
 
 use std::io::Read;
 
-use alhazen_core::demux::{ContainerFormat, probe};
-use alhazen_core::source::FileSource;
+use alhazen_ms_core::demux::{ContainerFormat, probe};
+use alhazen_ms_core::source::FileSource;
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))

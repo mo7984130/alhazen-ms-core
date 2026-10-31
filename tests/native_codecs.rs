@@ -4,10 +4,10 @@
 
 use std::process::Command;
 
-use alhazen_core::Source;
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::{DecodedFrame, PixelLayout, YuvFrame};
-use alhazen_core::demux::StreamKind;
+use alhazen_ms_core::Source;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::{DecodedFrame, PixelLayout, YuvFrame};
+use alhazen_ms_core::demux::StreamKind;
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -17,7 +17,7 @@ fn fixture(name: &str) -> String {
 fn native_first_frame(name: &str) -> YuvFrame {
     let source = Source::parse(&fixture(name)).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let registry = Registry::with_defaults();
     let mut demuxer = registry.open_demuxer(&source, format, src, None).unwrap();
     let stream = demuxer.streams().iter().find(|s| s.kind == StreamKind::Video).unwrap().clone();

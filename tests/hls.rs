@@ -8,11 +8,11 @@ mod server;
 use std::collections::BTreeSet;
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::{AudioOutputConfig, NullOutput};
-use alhazen_core::backend::Registry;
-use alhazen_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
-use alhazen_core::hls::HlsDemuxer;
-use alhazen_core::{Error, Player, PlayerConfig, PlayerState, Source};
+use alhazen_ms_core::audio::{AudioOutputConfig, NullOutput};
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
+use alhazen_ms_core::hls::HlsDemuxer;
+use alhazen_ms_core::{Error, Player, PlayerConfig, PlayerState, Source};
 use server::Server;
 use url::Url;
 
@@ -99,7 +99,7 @@ fn fmp4_vod_plays_to_the_end() {
     let server = Server::dir(root());
     let mut d = demux(&server.url("fmp4/index.m3u8"));
     let streams = d.streams().to_vec();
-    assert_eq!(streams[0].codec, alhazen_core::demux::Codec::Hevc);
+    assert_eq!(streams[0].codec, alhazen_ms_core::demux::Codec::Hevc);
     let packets = all(&mut d);
     let (v0, _, vn) = span(&streams, &packets, StreamKind::Video);
     let (a0, _, _) = span(&streams, &packets, StreamKind::Audio);
@@ -269,7 +269,7 @@ fn throttling_switches_down_through_a_resolution_change() {
     assert_eq!(player.state(), PlayerState::Ended, "{:?}", player.state());
     assert_eq!(sizes.first(), Some(&(640, 360)));
     assert_eq!(sizes.last(), Some(&(320, 180)), "switched down: {sizes:?}");
-    assert!(events.try_iter().any(|e| matches!(e, alhazen_core::PlayerEvent::VariantChanged(1))));
+    assert!(events.try_iter().any(|e| matches!(e, alhazen_ms_core::PlayerEvent::VariantChanged(1))));
     assert_eq!(player.current_variant(), Some(1));
 }
 
@@ -279,7 +279,7 @@ fn manual_variant_then_auto() {
     master_with_remote_audio(&video, &audio);
     let config = PlayerConfig { audio_output: AudioOutputConfig::Disabled, decoder_threads: 2, ..Default::default() };
     let player = Player::open(Source::parse(&video.url("multi/master.m3u8")).unwrap(), config).unwrap();
-    player.set_variant(alhazen_core::hls::Variant::Index(1));
+    player.set_variant(alhazen_ms_core::hls::Variant::Index(1));
     player.play();
     let start = Instant::now();
     let mut sizes = BTreeSet::new();
@@ -287,7 +287,7 @@ fn manual_variant_then_auto() {
         if let Some(f) = player.current_frame() {
             sizes.insert(f.size());
             if f.size() == (320, 180) {
-                player.set_variant(alhazen_core::hls::Variant::Auto);
+                player.set_variant(alhazen_ms_core::hls::Variant::Auto);
             }
         }
         std::thread::sleep(Duration::from_millis(5));
@@ -302,7 +302,7 @@ fn non_hls_media_has_no_variants() {
     let player = Player::open(Source::parse(&format!("{}/tests/fixtures/av1.webm", env!("CARGO_MANIFEST_DIR"))).unwrap(), config).unwrap();
     assert!(player.variants().is_empty());
     assert_eq!(player.current_variant(), None);
-    player.set_variant(alhazen_core::hls::Variant::Index(3)); // ignored
+    player.set_variant(alhazen_ms_core::hls::Variant::Index(3)); // ignored
 }
 
 #[test]

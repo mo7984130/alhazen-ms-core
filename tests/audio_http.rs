@@ -6,9 +6,9 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use alhazen_core::Source;
-use alhazen_core::backend::Registry;
-use alhazen_core::demux::StreamKind;
+use alhazen_ms_core::Source;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::demux::StreamKind;
 
 /// Serves `bytes` with Range support; records the start offset of every request.
 fn serve(bytes: Vec<u8>, name: &str) -> (String, Arc<Mutex<Vec<u64>>>) {
@@ -75,7 +75,7 @@ fn seeking_near_the_end_reads_from_near_the_end() {
         let (url, requests) = serve(bytes, name);
         let source = Source::parse(&url).unwrap();
         let mut src = source.open().unwrap();
-        let format = alhazen_core::demux::probe(src.as_mut()).unwrap().expect(name);
+        let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().expect(name);
         let mut d = Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap();
         let s = d.streams().iter().find(|s| s.kind == StreamKind::Audio).unwrap().clone();
         let duration = s.duration.unwrap_or_else(|| panic!("{name}: duration over HTTP"));

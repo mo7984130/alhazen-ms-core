@@ -20,8 +20,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "alhazen-core"
-version = "0.6.0"
+name = "alhazen-ms-core"
+version = "0.6.1"
 dependencies = [
  "aes",
  "cbc",

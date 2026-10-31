@@ -5,10 +5,10 @@
 
 use std::time::Duration;
 
-use alhazen_core::backend::{Backend, Registry};
-use alhazen_core::decode::{AudioDecoder, DecodedFrame};
-use alhazen_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
-use alhazen_core::Source;
+use alhazen_ms_core::backend::{Backend, Registry};
+use alhazen_ms_core::decode::{AudioDecoder, DecodedFrame};
+use alhazen_ms_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
+use alhazen_ms_core::Source;
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -17,7 +17,7 @@ fn fixture(name: &str) -> String {
 fn open(name: &str) -> (Vec<StreamInfo>, Vec<Packet>) {
     let source = Source::parse(&fixture(name)).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let mut d: Box<dyn Demuxer> = Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap();
     let streams = d.streams().to_vec();
     (streams, std::iter::from_fn(|| d.next_packet().unwrap()).collect())
@@ -84,7 +84,7 @@ fn check(name: &str, expected: Duration) {
     eprintln!("{name}: flash {v:?}, beep (native) {native:?}");
     assert!(v.abs_diff(expected) <= Duration::from_millis(1), "{name}: flash at {v:?}, expected {expected:?}");
     assert!(native.abs_diff(v) <= Duration::from_millis(10), "{name}: native audio {native:?} vs video {v:?}");
-    let ffmpeg = alhazen_core::ffmpeg::FfmpegCliBackend::new(Default::default());
+    let ffmpeg = alhazen_ms_core::ffmpeg::FfmpegCliBackend::new(Default::default());
     if ffmpeg.supports_audio(&a) {
         let via_ffmpeg = beep(name, ffmpeg.open_audio_decoder(&a).unwrap(), &a, &packets);
         eprintln!("{name}: beep (ffmpeg) {via_ffmpeg:?}");

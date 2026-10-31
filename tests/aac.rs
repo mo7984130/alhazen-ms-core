@@ -5,10 +5,10 @@
 use std::process::Command;
 use std::time::Duration;
 
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::{AacAudioDecoder, AudioDecoder};
-use alhazen_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
-use alhazen_core::Source;
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::{AacAudioDecoder, AudioDecoder};
+use alhazen_ms_core::demux::{Demuxer, Packet, StreamInfo, StreamKind};
+use alhazen_ms_core::Source;
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -17,7 +17,7 @@ fn fixture(name: &str) -> String {
 fn audio(name: &str) -> (StreamInfo, Vec<Packet>) {
     let source = Source::parse(&fixture(name)).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     let mut d: Box<dyn Demuxer> = Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap();
     let s = d.streams().iter().find(|s| s.kind == StreamKind::Audio).unwrap().clone();
     let packets = std::iter::from_fn(|| d.next_packet().unwrap()).filter(|p| p.stream == s.id).collect();

@@ -5,13 +5,13 @@
 
 use std::time::{Duration, Instant};
 
-use alhazen_core::audio::{AudioOutputConfig, NullOutput};
-use alhazen_core::backend::Registry;
-use alhazen_core::decode::{AudioDecoder, DecodedFrame, VideoDecoder};
-use alhazen_core::demux::{Demuxer, StreamInfo, StreamKind};
-use alhazen_core::hw::select::HwCodec;
-use alhazen_core::mf::{MfAudioDecoder, MfVideoDecoder};
-use alhazen_core::{FfmpegConfig, Player, PlayerConfig, PlayerState, Source};
+use alhazen_ms_core::audio::{AudioOutputConfig, NullOutput};
+use alhazen_ms_core::backend::Registry;
+use alhazen_ms_core::decode::{AudioDecoder, DecodedFrame, VideoDecoder};
+use alhazen_ms_core::demux::{Demuxer, StreamInfo, StreamKind};
+use alhazen_ms_core::hw::select::HwCodec;
+use alhazen_ms_core::mf::{MfAudioDecoder, MfVideoDecoder};
+use alhazen_ms_core::{FfmpegConfig, Player, PlayerConfig, PlayerState, Source};
 
 fn fixture(name: &str) -> String {
     format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"))
@@ -20,7 +20,7 @@ fn fixture(name: &str) -> String {
 fn demuxer(name: &str) -> Box<dyn Demuxer> {
     let source = Source::parse(&fixture(name)).unwrap();
     let mut src = source.open().unwrap();
-    let format = alhazen_core::demux::probe(src.as_mut()).unwrap().unwrap();
+    let format = alhazen_ms_core::demux::probe(src.as_mut()).unwrap().unwrap();
     Registry::empty_with_native().open_demuxer(&source, format, src, None).unwrap()
 }
 
@@ -94,7 +94,7 @@ fn decode_audio(name: &str) -> Option<(usize, u32, u16, f32)> {
     let codec = HwCodec::of(&s).unwrap();
     let mut dec = MfAudioDecoder::new(codec, &s).unwrap();
     let (mut frames, mut rate, mut channels, mut peak) = (0, 0, 0, 0f32);
-    let mut take = |b: alhazen_core::decode::AudioBuffer| {
+    let mut take = |b: alhazen_ms_core::decode::AudioBuffer| {
         (rate, channels) = (b.rate, b.channels);
         frames += b.samples.len() / b.channels as usize;
         peak = b.samples.iter().fold(peak, |m, s| m.max(s.abs()));

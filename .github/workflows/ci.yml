@@ -64,7 +64,7 @@ jobs:
           tree=$(cargo tree -e normal --prefix none --format '{p} | {l}' --locked)
           bad=$(grep -E '\| .*\b(MPL|GPL|LGPL)-' <<<"$tree" | grep -v ' OR ' || true)
           if [ -n "$bad" ]; then
-            echo "::error::alhazen-core has copyleft dependencies in its default build:"
+            echo "::error::alhazen-ms-core has copyleft dependencies in its default build:"
             echo "$bad"
             exit 1
           fi
