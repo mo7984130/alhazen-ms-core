@@ -1,7 +1,7 @@
 [package]
 name = "alhazen-ms-core"
 description = "Memory Seek fork of alhazen-core: a native media engine for Rust with pure-Rust and OS (GPU) decoders."
-version = "0.6.2"
+version = "0.6.3"
 edition = "2024"
 license = "Apache-2.0"
 rust-version = "1.92"
@@ -54,7 +54,10 @@ vp9-mt = { version = "0.1.1", optional = true }
 oximedia-codec = { version = "0.2.1", default-features = false, features = ["vp8"], optional = true }
 oxideav-prores = { version = "0.1.1", optional = true }
 re_mp4 = { version = "0.5.1", optional = true }
-ureq = { version = "3.4", optional = true }
+# Read HTTP(S)/SOCKS proxies from the environment (ALL_PROXY and friends).
+# Without `socks-proxy`, ureq warns for every connection when ALL_PROXY is a
+# SOCKS URL, then silently falls back to a direct connection.
+ureq = { version = "3.4", optional = true, features = ["socks-proxy"] }
 aes = { version = "0.8", optional = true }
 cbc = { version = "0.1", optional = true, features = ["alloc"] }
 opus-pure = { version = "0.2.2", optional = true }
